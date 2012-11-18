@@ -12,12 +12,13 @@ $(function($) {
         load: function(url) {
             var self = this;
             d3.json(url, function(json) {
-                self.parser(json);
+                self.parse(json);
             });
         },
 
-        parser: function(json) {
-            // This is specific to the data set
+        // Set the "counts" variable on the data model
+        /* abstract */ parse: function(json) {
+            throw "Subclass abstract method parse";
         }
     });
 });

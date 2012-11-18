@@ -4,7 +4,7 @@ $(function($) {
     'use strict';
 
     app.CityData = app.Data.extend({
-        parser: function(json) {
+        parse: function(json) {
             var cities, counts;
             cities = _.find(json["data"], function(set) {
                 return set["name"] == "City";
