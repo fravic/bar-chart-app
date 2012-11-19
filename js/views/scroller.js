@@ -22,6 +22,7 @@ $(function($) {
 
         onScroll: function() {
             var pos, h;
+
             pos = $("#scroller").scrollTop() + SELECT_HEIGHT;
             h = $("#side")[0].scrollHeight;
             this.pageNum = Math.floor(pos/h * this.numPages);
@@ -29,7 +30,6 @@ $(function($) {
             if (this.pageNum != this.lastPageNum) {
                 $(".page_" + this.pageNum).addClass("highlight");
                 $(".page_" + this.lastPageNum).removeClass("highlight");
-
 
                 this.trigger("scrollToPage", this, this.pageNum);
                 this.lastPageNum = this.pageNum;
@@ -39,7 +39,7 @@ $(function($) {
         dataChanged: function(model, counts) {
             this.numPages = this.model.pageCount();
             this.render();
-            this.onScroll();
+            this.onScroll(); // set initial page num
         },
 
         searchChanged: function() {
