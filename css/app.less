@@ -3,17 +3,49 @@
 HTML, BODY {
   font-family: "proxima-nova", "sans-serif";
   height: 100%;
+  overflow: hidden;
   }
 
 DIV#topbar {
-  background: white;
-  height: 45px;
+  background-color: white;
+  height: 40px;
   position: fixed;
   width: 100%;
   z-index: 100;
 
   H1 {
-    font-size: 25px;
+    float: left;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px 0 0 5px;
+    }
+
+  DIV#topRight {
+    float: right;
+    padding-right: 10px;
+
+    IMG.search {
+      position: absolute;
+      max-width: 18px;
+      right: 16px;
+      top: 9px;
+      }
+
+    INPUT#search {
+      .innerBorder;
+
+      border: 1px solid steelblue;
+      height: 28px;
+      float: left;
+      margin: 5px 0 0 0;
+      outline: none;
+      padding: 8px;
+      width: 250px;
+      }
+
+    INPUT#search:focus {
+      border-color: coral;
+      }
     }
   }
 
@@ -21,13 +53,14 @@ DIV#chartContainer {
   .innerBorder;
 
   height: 100%;
-  padding-top: 45px;
+  padding: 45px 250px 0 0;
   width: 100%;
 
   DIV#chart {
     font-size: 12px;
     font-weight: @semibold;
     height: 100%;
+    overflow: hidden;
     width: 100%;
 
     DIV.bar {
@@ -56,11 +89,46 @@ DIV#chartContainer {
     }
 
   DIV#scroller {
-    background-color: red;
+    .disableTextSelect;
+
+    font-size: 18px;
+    font-weight: lighter;
     height: 100%;
-    position: fixed;
+    margin-bottom: 10px;
+    overflow-x: visible;
+    overflow-y: scroll;
+    padding: 45px 0 0 10px;
+    position: absolute;
     right: 0;
     top: 0;
-    width: 200px;
+    width: 250px;
+
+    DIV#indicator {
+      background-color: steelblue;
+      height: 30px;
+      opacity: 0.3;
+      position: fixed;
+      right: 10px;
+      top: 40px;
+      width: 250px;
+      }
+
+    DIV#side {
+      float: left;
+      margin-right: 30px;
+      }
+
+    DIV.letter {
+      font-weight: @semibold;
+      }
+
+    DIV.page, DIV.letter {
+      height: 25px;
+      margin-bottom: 25px;
+      }
+
+    DIV.bottomPad {
+      height: 100%;
+      }
     }
   }
