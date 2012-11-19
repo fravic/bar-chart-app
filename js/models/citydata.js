@@ -13,7 +13,9 @@ $(function($) {
             })["values"];
             
             // Sort and count by number of occurances
-            cities = cities.sort();
+            cities = _.sortBy(cities, function(s) { 
+                return s.toUpperCase();
+            });
             counts = _.pairs(_.countBy(cities, function(s) {
                 return s;
             }));

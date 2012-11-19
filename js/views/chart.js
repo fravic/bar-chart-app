@@ -3,8 +3,9 @@ var app = app || {};
 $(function($) {
     'use strict';
 
+    var BAR_MIN_WIDTH = 14;
     var BAR_HEIGHT = 25;
-    var CHART_RIGHT_PAD = 100;
+    var CHART_RIGHT_PAD = 120;
 
     app.ChartView = Backbone.View.extend({
         initialize: function(a) {
@@ -22,13 +23,24 @@ $(function($) {
 
             this.scroller = a["scroller"];
             this.scroller.on("scrollToPage", this.pageChanged, this);
+
+            $(window).resize(_.bind(this.windowResized, this));
+            this.windowResized();
         },
 
-        dataChanged: function(model, counts) {
-            this.setup();
+        windowResized: function() {
+            var h, bucketSize;
+            h = $("#chart").height();
+            bucketSize = Math.floor(h/BAR_HEIGHT);
+            this.model.set("bucketSize", bucketSize);
+            this.render();
         },
 
-        pageChanged: function(scroller, pageNum) {
+        dataChanged: function() {
+            this.render();
+        },
+
+        pageChanged: function() {
             this.render();
         },
 
@@ -36,11 +48,9 @@ $(function($) {
             this.render();
         },
 
-        setup: function() {
-            var self, h, w, chart, counts, value, label, bars;
+        render: function() {
+            var x, h, w, counts, value, label, barsD, barsE;
 
-            self = this;
-            chart = d3.select("#chart");
             w = $("#chart").width() - CHART_RIGHT_PAD;
             h = $("#chart").height();
 
@@ -48,58 +58,32 @@ $(function($) {
             value = function(d) { return d[1]; }
             label = function(d) { return d[0]; }
 
-            self.x = d3.scale
+            x = d3.scale
                 .linear()
                 .domain([0, this.model.max()])
-                .range(["0px", w + "px"]);
+                .range([BAR_MIN_WIDTH + "px", w + "px"]);
 
-            bars = chart.selectAll("div.bar")
-                .data(counts)
-                .enter().append("div")
-                .attr("class", "bar")
-                .style("width", function(d) {
-                    return self.x(value(d));
-                })
-                .style("background-color", function(d) {
-                    return "rgb(70, 130, " + 
-                        (Math.min(value(d) * 4, 100) + 150) + 
-                        ")";
-                });
+            barsD = d3.select("#chart").selectAll("div.bar")
+                .data(counts);
+            barsE = barsD.enter().append("div")
+                .attr("class", "bar");
+            barsE.append("div")
+                .attr("class", "label");
+            barsE.append("div")
+                .attr("class", "count");
+            barsD.exit().remove();
+            barsD.style("width", function(d) {
+                return x(value(d));
+            }).style("background-color", function(d) {
+                return "rgb(70, 130, " + 
+                    (Math.min(value(d) * 4, 100) + 150) + 
+                ")";
+            });
 
-            bars.append("div")
-                .attr("class", "label")
+            barsD.select("div.label")
                 .text(label);
-
-            bars.append("div", ".bar")
-                .attr("class", "count")
+            barsD.select("div.count")
                 .text(value);
         },
-
-        render: function() {
-            var self, chart, counts, value, label, bars;
-
-            self = this;
-            chart = d3.select("#chart");
-            counts = this.model.bucketCounts(this.scroller.pageNum);
-            value = function(d) { return d[1]; }
-            label = function(d) { return d[0]; }
-
-            bars = chart.selectAll("div.bar")
-                .data(counts)
-                .attr("class", "bar")
-                .style("width", function(d) {
-                    return self.x(value(d));
-                })
-                .style("background-color", function(d) {
-                    return "rgb(70, 130, " + 
-                        (Math.min(value(d) * 4, 100) + 150) + 
-                        ")";
-                });
-
-            bars.select("div.label")
-                .text(label);
-            bars.select("div.count")
-                .text(value);
-        }
     });
 });

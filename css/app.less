@@ -6,9 +6,14 @@ HTML, BODY {
   overflow: hidden;
   }
 
+DIV#page {
+  min-width: 600px;
+  }
+
 DIV#topbar {
   background-color: white;
   height: 40px;
+  min-width: 500px;
   position: fixed;
   width: 100%;
   z-index: 100;
@@ -33,6 +38,8 @@ DIV#topbar {
 
     INPUT#search {
       .innerBorder;
+      transition: border 0.2s;
+      -webkit-transition: border 0.2s;
 
       border: 1px solid steelblue;
       height: 28px;
@@ -101,12 +108,27 @@ DIV#chartContainer {
     position: absolute;
     right: 0;
     top: 0;
-    width: 250px;
+    width: 100%;
+
+    #arrow {
+      position: fixed;
+      right: 10px;
+      top: 45px;
+      width: 12px;
+      }
+
+    DIV.container {
+      float: right;
+      height: 100%;
+      width: 250px;
+      }
 
     DIV#indicator {
-      background-color: steelblue;
-      height: 30px;
-      opacity: 0.3;
+      background-image: -webkit-gradient(linear, 0 0, 0 10%, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0.85))); // Safari 4+, Chrome 2+
+
+      height: 100%;
+      margin-top: 45px;
+      pointer-events: none;
       position: fixed;
       right: 10px;
       top: 40px;
@@ -116,6 +138,11 @@ DIV#chartContainer {
     DIV#side {
       float: left;
       margin-right: 30px;
+      }
+
+    DIV.highlight {
+      color: steelblue;
+      font-weight: @semibold;
       }
 
     DIV.letter {

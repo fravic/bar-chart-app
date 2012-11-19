@@ -3,6 +3,8 @@ var app = app || {};
 $(function($) {
     'use strict';
 
+    var SELECT_HEIGHT = 30;
+
     app.ScrollerView = Backbone.View.extend({
         initialize: function(a) {
             if (!a["dataModel"]) {
@@ -11,79 +13,66 @@ $(function($) {
 
             this.model = a["dataModel"];
             this.model.on("change:counts", this.dataChanged, this);
+            this.model.on("change:bucketSize", this.dataChanged, this);
             this.model.on("change:searchTerm", this.searchChanged, this);
 
-            this.lastPageNum = 0;
+            this.pageNum = this.lastPageNum = -1;
             $("#scroller").scroll(_.bind(this.onScroll, this));
         },
 
         onScroll: function() {
             var pos, h;
-            pos = $("#scroller").scrollTop() + $("#indicator").height() / 2;
+            pos = $("#scroller").scrollTop() + SELECT_HEIGHT;
             h = $("#side")[0].scrollHeight;
             this.pageNum = Math.floor(pos/h * this.numPages);
 
             if (this.pageNum != this.lastPageNum) {
+                $(".page_" + this.pageNum).addClass("highlight");
+                $(".page_" + this.lastPageNum).removeClass("highlight");
+
+
                 this.trigger("scrollToPage", this, this.pageNum);
                 this.lastPageNum = this.pageNum;
             }
         },
 
         dataChanged: function(model, counts) {
-            this.numPages = model.letterBuckets().length;
+            this.numPages = this.model.pageCount();
             this.render();
             this.onScroll();
         },
 
         searchChanged: function() {
+            $("#scroller").scrollTop(0);
+            this.numPages = this.model.pageCount();
             this.render();
         },
 
-        setup: function() {
-            var buckets, letters, scroller, side;
-
-            buckets = this.model.letterBuckets();
-            letters = this.model.letters();
-            this.numPages = buckets.length;
-            
-            scroller = d3.select("#buckets");
-            scroller.selectAll(".page")
-                .data(buckets)
-                .enter().append("div")
-                .attr("class", "page")
-                .text(function(d) {
-                    return d[0];
-                });
-
-            buckets = d3.select("#side");
-            buckets.selectAll(".letter")
-                .data(letters)
-                .enter().append("div")
-                .attr("class", "letter")
-                .text(String);
-        },
-
         render: function() {
-            var buckets, letters, scroller, side;
+            var buckets, letters, bucketD, sideD;
 
             buckets = this.model.letterBuckets();
             letters = this.model.letters();
-            this.numPages = buckets.length;
 
-            scroller = d3.select("#buckets")
+            bucketD = d3.select("#buckets")
+                .selectAll("div.page")
                 .data(buckets);
-            
-            scroller.text(function(d) {
-                    return d[0];
+            bucketD.enter().append("div")
+                .attr("class", function(d, i) {
+                    return "page page_" + i;
                 });
-            scroller.exit().remove()
+            bucketD.exit().remove();
+            bucketD.text(function(d) {
+                return d[0];
+            });
 
-            side = d3.select("#side");
-            side.selectAll(".letter")
-                .data(letters)
-                .text(String);
-            
-            
+            sideD = d3.select("#side")
+                .selectAll("div.letter")
+                .data(letters);
+            sideD.enter().append("div")
+                .attr("class", "letter");
+            sideD.exit().remove();
+            sideD.text(String);
         }
     });
 });

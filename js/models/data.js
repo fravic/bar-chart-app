@@ -3,20 +3,12 @@ var app = app || {};
 $(function($) {
     'use strict';
 
-    var BUCKET_SIZE = 30;
-
     app.Data = Backbone.Model.extend({
         defaults: {
             "data": null,
-            "counts": {},
-            "searchTerm": null
-        },
-        
-        load: function(url) {
-            var self = this;
-            d3.json(url, function(json) {
-                self.parse(json);
-            });
+            "counts": [],
+            "searchTerm": null,
+            "bucketSize": 30
         },
 
         // Set the "counts" variable on the data model
@@ -24,28 +16,36 @@ $(function($) {
             throw "Subclass abstract method parse";
         },
 
-        /* private */ _max: function() {
+        load: function(url) {
+            var self = this;
+            d3.json(url, function(json) {
+                self.parse(json);
+            });
+        },
+
+        max: function() {
             return d3.max(_.map(this.filteredCounts(), function(d) {
                 return d[1];
             }));
         },
 
-        /* private */ _letterBuckets: function() {
-            var i, counts, buckets, n;
+        letterBuckets: function() {
+            var i, counts, buckets, n, bucketSize;
 
             counts = this.filteredCounts();
             buckets = [];
-            for (i = 0; i < counts.length; i += BUCKET_SIZE) {
+            bucketSize = this.get("bucketSize");
+            for (i = 0; i < counts.length; i += bucketSize) {
                 n = this.summarizeBucket(
-                    counts.slice(i, i + BUCKET_SIZE)
+                    counts.slice(i, i + bucketSize)
                 );
                 buckets.push(n);
             }
             return buckets;
         },
 
-        max: function() {
-            return _.memoize(_.bind(this._max, this))();
+        pageCount: function() {
+            return this.letterBuckets().length;
         },
 
         filteredCounts: function() {
@@ -55,19 +55,18 @@ $(function($) {
             if (searchTerm == null || searchTerm.length == 0) {
                 return this.get("counts");
             }
+            
             return _.filter(this.get("counts"), function(d) {
-                return d[0].indexOf(searchTerm) >= 0;
+                return d[0].toLowerCase().indexOf(searchTerm) >= 0;
             });
         },
 
         bucketCounts: function(pageNum) {
-            var i;
-            i = pageNum * BUCKET_SIZE;
-            return this.filteredCounts().slice(i, i + BUCKET_SIZE);
-        },
-        
-        letterBuckets: function() {
-            return _.memoize(_.bind(this._letterBuckets, this))();
+            var i, bucketSize;
+            pageNum = Math.min(pageNum, this.pageCount()-1);
+            bucketSize = this.get("bucketSize");
+            i = pageNum * bucketSize;
+            return this.filteredCounts().slice(i, i + bucketSize);
         },
 
         letters: function() {
@@ -91,7 +90,7 @@ $(function($) {
         },
         
         search: function(term) {
-            this.set("searchTerm", term);
+            this.set("searchTerm", term.toLowerCase());
         }
     });
 });
